@@ -1,7 +1,7 @@
 from sqlalchemy import and_
 
-from database.db import session
-from database.models import User, Todo
+from .db import session
+from .models import User, Todo
 
 
 def get_user_by_login(login):
