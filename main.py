@@ -20,5 +20,6 @@ rec1 = Record(description="Купить хлеб", note=note)
 rec2 = Record(description="Купить колбасу 0.5 кг", note=note)
 rec3 = Record(description="Купить помидоры 1кг", note=note)
 
+
 session.add(note)
 session.commit()

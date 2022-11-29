@@ -218,6 +218,10 @@ from pathlib import Path
 import shutil
 from abc import abstractmethod, ABC
 
+import sqlalchemy
+
+from DB_handlers import *
+
 
 # GLOBALS
 
@@ -526,6 +530,7 @@ class Record:
 
         if add_book.data[name].record_dict['Email']:
             add_book.data[name].record_dict['Email'].append(email)
+
         else:
             add_book.data[name].record_dict['Email'] = []
             add_book.data[name].record_dict['Email'].append(email)
@@ -549,11 +554,11 @@ class TryAgainError(Exception):
 class Presenter(ABC):
 
     @abstractmethod
-    def see_iteration():
+    def see_iteration(self):
         pass
 
     @abstractmethod
-    def show_all():
+    def show_all(self):
         pass
 
 
@@ -678,6 +683,7 @@ def add_func(name, phone):  # 1&2
         if re.match(r"^[0-9]{10,10}$", phone):
 
             add_book.add_record(name, phone)  # 2
+            add_records_DB(name, phone)
 
             print('Information has been added successfully!')
         else:
@@ -688,6 +694,9 @@ def add_func(name, phone):  # 1&2
         print("Telephone number does not match format - should be 10 digits")
         TelDoesNotMathFormatError.status = 1
 
+    except sqlalchemy.exc.IntegrityError:
+        print("This user already exist. Try new one")
+
 @input_error
 def change_func(name, phone):  # 1&2
 
@@ -696,6 +705,7 @@ def change_func(name, phone):  # 1&2
             if re.match(r"^[0-9]{10,10}$", phone):
 
                 Record().edit_phone(name, phone)  # 2
+                change_phone_DB(name, phone)
 
                 print('Phone number has been changed successfully!')
             else:
@@ -756,6 +766,7 @@ def addnum_func(name, phone):  # 1&2
         if re.match(r"^[0-9]{10,10}$", phone):
 
             Record().add_phone(name, phone)  # 2
+            add_phone_DB(name, phone)
 
             print('Information has been added successfully!')
         else:
@@ -773,6 +784,7 @@ def del_func(name, phone):  # 1&2
         if re.match(r"^[0-9]{10,10}$", phone):
 
             Record().del_phone(name, phone)  # 2
+            del_phone_DB(name, phone)
 
             print('Telephone number has been deleted successfully!')
         else:
@@ -877,47 +889,55 @@ def load_func(name):
             "File not found! Please, make sure file is exist or name was written correctly!")
 
 def lookup_func(text):
-    if len(add_book.data) == 0:
-        print('Data Base is empty yet. Please add someone!')
-    else:
-        flag_found = 0
-        for key, value in add_book.data.items():
-            dict_for_lookup = deepcopy(value.record_dict)
-            if value.record_dict['Birthday']:
-                datetimestring = copy(value.record_dict['Birthday'])
-                dict_for_lookup['Birthday'] = datetimestring.strftime(
-                    '%A %d %B %Y')
-            else:
-                dict_for_lookup['Birthday'] = ''
+    pass
 
-            dict_for_lookup['Phone'] = list_string(value.record_dict['Phone'])
 
-            dict_for_lookup['Email'] = list_string(value.record_dict['Email'])
-            dict_for_lookup['Adress'] = list_string(
-                value.record_dict['Adress'])
 
-            for key_in, value_in in dict_for_lookup.items():
-                if value_in.lower().find(text.lower()) >= 0:
-                    print(
-                        f'Looked up text was found in "{key}" Record, in "{key_in}" Field. in next text: "{value_in}" ')
-                    flag_found += 1
 
-    # Add lookup by Notes
-    if len(add_book.notes_data) == 0:
-        print('There is not any notes yet. Please add something!')
-    else:
-        for key, value in add_book.notes_data.items():
-            if key.lower().find(text.lower()) >= 0:
-                print(f'Looked up text was found in tag :"{key}" for next Note: "{value}"')
-                flag_found += 1
-            if value.lower().find(text.lower()) >= 0:
-                print(f'Looked up text was found in Notes :"{value}" with next tags: "{key}"')
-                flag_found += 1
-             
-    if flag_found != 0:
-        print(f'Summary: There were found {flag_found} results')
-    else:
-        print('No information was found')
+
+# def lookup_func(text):
+#
+#     if len(add_book.data) == 0:
+#         print('Data Base is empty yet. Please add someone!')
+#     else:
+#         flag_found = 0
+#         for key, value in add_book.data.items():
+#             dict_for_lookup = deepcopy(value.record_dict)
+#             if value.record_dict['Birthday']:
+#                 datetimestring = copy(value.record_dict['Birthday'])
+#                 dict_for_lookup['Birthday'] = datetimestring.strftime(
+#                     '%A %d %B %Y')
+#             else:
+#                 dict_for_lookup['Birthday'] = ''
+#
+#             dict_for_lookup['Phone'] = list_string(value.record_dict['Phone'])
+#
+#             dict_for_lookup['Email'] = list_string(value.record_dict['Email'])
+#             dict_for_lookup['Adress'] = list_string(
+#                 value.record_dict['Adress'])
+#
+#             for key_in, value_in in dict_for_lookup.items():
+#                 if value_in.lower().find(text.lower()) >= 0:
+#                     print(
+#                         f'Looked up text was found in "{key}" Record, in "{key_in}" Field. in next text: "{value_in}" ')
+#                     flag_found += 1
+#
+#     # Add lookup by Notes
+#     if len(add_book.notes_data) == 0:
+#         print('There is not any notes yet. Please add something!')
+#     else:
+#         for key, value in add_book.notes_data.items():
+#             if key.lower().find(text.lower()) >= 0:
+#                 print(f'Looked up text was found in tag :"{key}" for next Note: "{value}"')
+#                 flag_found += 1
+#             if value.lower().find(text.lower()) >= 0:
+#                 print(f'Looked up text was found in Notes :"{value}" with next tags: "{key}"')
+#                 flag_found += 1
+#
+#     if flag_found != 0:
+#         print(f'Summary: There were found {flag_found} results')
+#     else:
+#         print('No information was found')
         
 @input_error
 def del_record_hand(name):  # ---- !!!!!
@@ -926,6 +946,7 @@ def del_record_hand(name):  # ---- !!!!!
         if name in add_book.data:
 
             add_book.del_record(name)
+            del_rec_DB(name)
 
             print(f'Record :{name} has been deleted successfully!')
 
@@ -944,6 +965,7 @@ def add_email_head(name, email):
         if re.match(r"[a-z0-9]+@[a-z]+\.[a-z]{2,3}", email):
 
             Record().add_email(name, email)  # 2
+            add_email_DB(name, email)
 
             print('Email has been added successfully!')
         else:
@@ -954,6 +976,9 @@ def add_email_head(name, email):
         print("Email does not match format - should be 1@1.1")
         TelDoesNotMathFormatError.status = 1
 
+    except KeyError:
+        print("User with this email does not exist. Try other option")
+
 @input_error
 def change_email_head(name, email):
 
@@ -961,6 +986,7 @@ def change_email_head(name, email):
         if re.match(r"[a-z0-9]+@[a-z]+\.[a-z]{2,3}", email):
 
             Email().change_email(name, email)  # 2
+            change_email_DB(name, email)
 
             print('Email has been changed successfully!')
         else:
@@ -975,6 +1001,7 @@ def change_email_head(name, email):
 def add_adress_head(name, adress):
     try:
         Record().add_adress(name, adress)  # 2
+        add_adress_DB(name, adress)
         print('Adress has been added successfully!')
 
     except:
