@@ -33,21 +33,21 @@ class Record(Base):
 class Email(Base):
     __tablename__ = "emails"
     id = Column(Integer, primary_key=True)
-    email_name = Column(String(100), nullable=False)
+    email_name = Column(String(100), nullable=True)
     rec_id = Column(Integer, ForeignKey(Record.id, ondelete="CASCADE"))
 
 # Таблица Adress
 class Adress(Base):
     __tablename__ = "adresses"
     id = Column(Integer, primary_key=True)
-    adress_name = Column(String(250), nullable=False)
+    adress_name = Column(String(250), nullable=True)
     rec_id = Column(Integer, ForeignKey(Record.id, ondelete="CASCADE"))
 
 # Таблица Phone
 class Phone(Base):
     __tablename__ = "phones"
     id = Column(Integer, primary_key=True)
-    phone_name = Column(String(20), nullable=False)
+    phone_name = Column(String(20), nullable=True)
     rec_id = Column(Integer, ForeignKey(Record.id, ondelete="CASCADE"))
 
 

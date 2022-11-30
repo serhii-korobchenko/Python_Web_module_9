@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, joinedload
 from models import Email, Record, Adress, Phone
 from sqlalchemy import and_
 from sqlalchemy.schema import MetaData
+from sqlalchemy import or_
 
 
 
@@ -12,15 +13,51 @@ def look_up_DB (text):
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    #result = session.query(Record).options(joinedload(Record.phone)).all()
-    result = session.query(Record).join(Phone)
 
-    print(result)
+    """
+    SELECT r.name, r.created, p.phone_name
+    FROM records r
+    LEFT JOIN phones p ON r.id = p.rec_id
+    """
+    result = session.query\
+        (Record.name, Record.created, Phone.phone_name, Email.email_name) \
+        .select_from(Record)\
+        .join(Email) \
+        .join(Adress) \
+        .join(Phone).all()
 
-    for person in result:
-        print(person.name)
+    print (result)
 
 
+
+
+
+
+
+
+
+
+
+"""
+    Знайти 5 студентів з найбільшим середнім балом по всім предметам
+    :return:
+    """
+# result = session.query
+#     (Student.fullname, func.round(func.avg(Grade.grade), 2).label('avg_grade')) \
+#     .select_from(Grade).\
+#     join(Student).\
+#     group_by(Student.id).\
+#     order_by(desc('avg_grade')).\
+#     imit(5).all()
+# return result
+
+
+# SELECT s.name_student, round (avg(g.grade), 2) AS avg_grade
+# FROM grades g
+# LEFT JOIN students s ON s.id = g.student_id
+# GROUP BY s.id
+# ORDER BY avg_grade DESC
+# LIMIT 5;
 
 
 
