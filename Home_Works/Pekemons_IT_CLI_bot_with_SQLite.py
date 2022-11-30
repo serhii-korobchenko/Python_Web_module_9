@@ -889,7 +889,7 @@ def load_func(name):
             "File not found! Please, make sure file is exist or name was written correctly!")
 
 def lookup_func(text):
-    pass
+    look_up_DB (text)
 
 
 

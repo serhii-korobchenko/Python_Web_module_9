@@ -19,14 +19,39 @@ def look_up_DB (text):
     FROM records r
     LEFT JOIN phones p ON r.id = p.rec_id
     """
-    result = session.query\
-        (Record.name, Record.created, Phone.phone_name, Email.email_name) \
-        .select_from(Record)\
-        .join(Email) \
-        .join(Adress) \
-        .join(Phone).all()
+    # result = session.query\
+    #     (Record.name, Record.created, Phone.phone_name, Email.email_name) \
+    #     .select_from(Record)\
+    #     .join(Email) \
+    #     .join(Adress) \
+    #     .join(Phone).all()
+    #
+    # print (result)
+    query_list = [(Record.name, Record.id), (Record.created, Record.id), (Email.email_name, Email.rec_id),\
+                  (Adress.adress_name, Adress.rec_id), (Phone.phone_name, Phone.rec_id)]
+    for item in query_list:
 
-    print (result)
+        if session.query(item[0]).all():
+            #print(session.query(item[0], item[1]).all())
+            rec_id = session.query(item[1]).all()
+            #print(f'rec_id = {rec_id}')
+
+            for outer in session.query(item[0], item[1]).all():
+                #print (outer[0])
+
+                if type(outer[0]) != str:
+                    lookup_res = outer[0].strftime('%A %d %B %Y')
+                else:
+                    lookup_res = outer[0]
+
+                if lookup_res.lower().find(text.lower()) >= 0:
+                    print(
+                        f'Looked up text was found in next statement: "{lookup_res}" in record: "{session.query(Record.name).filter(Record.id == outer[1]).first()[0]}"')
+
+
+
+
+
 
 
 
@@ -217,7 +242,7 @@ if __name__ == '__main__':
     # change_email_DB('Bumba', '2@2.2')
     # add_adress_DB('Bumba', 'Vinica')
     # change_adress_DB('Bumba', 'Lviv')
-    look_up_DB ('Ser')
+    look_up_DB ('11')
 
 
 

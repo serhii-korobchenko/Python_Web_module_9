@@ -1,8 +1,8 @@
 """'Init'
 
-Revision ID: a29cdafbd92d
+Revision ID: e9da41a7353f
 Revises: 
-Create Date: 2022-11-29 17:51:11.154382
+Create Date: 2022-11-30 12:17:30.307409
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a29cdafbd92d'
+revision = 'e9da41a7353f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,21 +27,21 @@ def upgrade() -> None:
     )
     op.create_table('adresses',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('adress_name', sa.String(length=250), nullable=False),
+    sa.Column('adress_name', sa.String(length=250), nullable=True),
     sa.Column('rec_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['rec_id'], ['records.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('emails',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('email_name', sa.String(length=100), nullable=False),
+    sa.Column('email_name', sa.String(length=100), nullable=True),
     sa.Column('rec_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['rec_id'], ['records.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('phones',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('phone_name', sa.String(length=20), nullable=False),
+    sa.Column('phone_name', sa.String(length=20), nullable=True),
     sa.Column('rec_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['rec_id'], ['records.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
